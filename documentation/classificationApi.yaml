@@ -1,0 +1,709 @@
+openapi: 3.0.0
+info:
+  title: Variant Exchange API
+  description: API to Variant Exchange services
+  version: 1.0.0
+servers:
+  - url: "https://testapi.dnvgl.com/TVX_classification_test/"
+security:
+  - bearerAuth: []
+paths:
+  "/classification/{id}":
+    get:
+      summary: Gets a classification.
+      description: |
+        Returns a classification according to the id.
+      parameters:
+        - name: id
+          in: path
+          description: Classification's ID = uniquely identifies a classification on Variant Exchange
+          required: true
+          schema:
+            type: string
+            format: uuid
+      tags:
+        - Classifications
+      responses:
+        "200":
+          description: Element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Classification"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/classification/":
+    post:
+      summary: Adds new classification.
+      description: >
+        Adds new classification.
+      requestBody:
+        required: true
+        description: >
+          Id, UnitId and SubmittedByUserId will be set by the API. ClassificationId has to be used by the unit as a reference of its own environment.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Classification"
+      tags:
+        - Classifications
+      responses:
+        "200":
+          description: Data of a newly added element
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Classification"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/classification/{approach}":
+    post:
+      summary: Adds new classifications.
+      description: >
+        Adds new classifications.
+      parameters:
+        - name: approach
+          in: path
+          description: |
+            Approach type that can be 'all' or 'partial'. For the type 'all', all classifications from the list should be valid and if one of the classifications is incorrect, nothing will be stored. For the type 'partial', only the valid classifications will be stored to the database.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: >
+          Request body size limit is 30 MB. Id, UnitId and SubmittedByUserId will be set by the API. ClassificationId has to be used by the unit as a reference of its own environment.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListOfClassifications"
+      tags:
+        - Classifications
+      responses:
+        "200":
+          description: Data of newly added elements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOfClassificationResults"
+        "400":
+          description: Result of the attempt to post classifications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOfClassificationResults"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/classification/{build}/{chromosome}/{position}/{reference}/{altered}":
+    get:
+      summary: Gets all classifications.
+      description: |
+        Returns all classifications according to build, chromosome, position, reference and altered.
+      parameters:
+        - name: build
+          in: path
+          description: Variant's build
+          required: true
+          schema:
+            type: string
+        - name: chromosome
+          in: path
+          description: Variant's chromosome
+          required: true
+          schema:
+            type: string
+        - name: position
+          in: path
+          description: Variant's position
+          required: true
+          schema:
+            type: integer
+        - name: reference
+          in: path
+          description: Variant's reference nucleotides
+          required: true
+          schema:
+            type: string
+        - name: altered
+          in: path
+          description: Variant's altered nucleotides
+          required: true
+          schema:
+            type: string
+      tags:
+        - Classifications
+      responses:
+        "200":
+          description: List of element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOfSimplifiedClassifications"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/classification/{build}/{chromosome}/{start}/{end}":
+    get:
+      summary: Gets all classifications.
+      description: |
+        Returns all classifications according to build, chromosome, start and end.
+      parameters:
+        - name: build
+          in: path
+          description: Variant's build
+          required: true
+          schema:
+            type: string
+        - name: chromosome
+          in: path
+          description: Variant's chromosome
+          required: true
+          schema:
+            type: string
+        - name: start
+          in: path
+          description: Start position of the search
+          required: true
+          schema:
+            type: integer
+        - name: end
+          in: path
+          description: End position of the search
+          required: true
+          schema:
+            type: integer
+      tags:
+        - Classifications
+      responses:
+        "200":
+          description: List of element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOfSimplifiedClassifications"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/classification/inAssociatedGene/{build}/{geneName}":
+    get:
+      summary: Gets all classifications in associated gene.
+      description: |
+        Returns all classifications in a specific gene according to the build.
+      parameters:
+        - name: build
+          in: path
+          description: Variant's build
+          required: true
+          schema:
+            type: string
+        - name: geneName
+          in: path
+          description: Name of gene
+          required: true
+          schema:
+            type: string
+      tags:
+        - Classifications
+      responses:
+        "200":
+          description: List of element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOfSimplifiedClassifications"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/classification/search/{build}":
+    get:
+      summary: Gets all classifications.
+      description: |
+        Returns all classifications according to the search query.
+      parameters:
+        - name: build
+          in: path
+          description: Variant's build
+          required: true
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: |
+            Search parameter. Can be either gene name(input= [geneName]), HGVS term (input= [hgvsTerm]), variant(input= [chromosome]:[position]:[reference]:[altered]), or region(input= [chomosome]:[startPosition]:[endPosition]).
+          required: true
+          schema:
+            type: string
+      tags:
+        - Classifications
+      responses:
+        "200":
+          description: List of element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOfSimplifiedClassifications"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/discordances/{id}":
+    get:
+      summary: Gets a discordance.
+      description: |
+        Returns a discordance according to the id.
+      parameters:
+        - name: id
+          in: path
+          description: Discordance's ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      tags:
+        - Discordances
+      responses:
+        "200":
+          description: Element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Discordance"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/discordances/":
+    get:
+      summary: Gets all discordances in a specific unit.
+      description: |
+        Returns all registered discordances on the unit to which the current user belongs.
+      parameters:
+        - name: fromDate
+          in: query
+          description: The discordance's date registration should be >=
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          description: The discordance's date registration should be <=
+          required: false
+          schema:
+            type: string
+            format: date
+      tags:
+        - Discordances
+      responses:
+        "200":
+          description: List of element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOfDiscordances"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/buildTypes":
+    get:
+      summary: Gets the supported reference genomes.
+      description: |
+        Returns all the supported reference genomes.
+      tags:
+        - Reference
+      responses:
+        "200":
+          description: Element data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/chromosomes":
+    get:
+      summary: Gets the supported chromosomes.
+      description: |
+        Returns all the supported chromosomes.
+      tags:
+        - Reference
+      responses:
+        "200":
+          description: Element data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/nucleotides":
+    get:
+      summary: Gets the supported nucleotides.
+      description: |
+        Returns all the supported nucleotides.
+      tags:
+        - Reference
+      responses:
+        "200":
+          description: Element data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/guidelines":
+    get:
+      summary: Gets the supported guidelines.
+      description: |
+        Returns all the supported guidelines.
+      tags:
+        - Reference
+      responses:
+        "200":
+          description: Element data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/criterias/{guideline}":
+    get:
+      summary: Gets the supported criterias for the guideline.
+      description: |
+        Returns all the supported criterias for the guideline.
+      parameters:
+        - name: guideline
+          in: path
+          description: Guideline used to classify variant
+          required: true
+          schema:
+            type: string
+      tags:
+        - Reference
+      responses:
+        "200":
+          description: Element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CriteriaType"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/parse/hgvs/{build}":
+    get:
+      summary: Parse the hgvs term into genome coordinates for the specific reference genome build.
+      description: |
+        Returns the genome coordinates for the specific reference genome build and hgvs term.
+      parameters:
+        - name: build
+          in: path
+          description: Reference genome build
+          required: true
+          schema:
+            type: string
+        - name: term
+          in: query
+          description: HGVS term
+          required: true
+          schema:
+            type: string
+      tags:
+        - Reference
+      responses:
+        "200":
+          description: Element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VariantExtended"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/parse/variant/{build}/{variantString}":
+    get:
+      summary: Parse the genome coordinates for the specific reference genome build.
+      description: |
+        Returns the hgvs term and gene name for the specific reference genome build and variant ([chromosome]:[position]:[reference]:[altered]).
+      parameters:
+        - name: build
+          in: path
+          description: Reference genome build
+          required: true
+          schema:
+            type: string
+        - name: variantString
+          in: path
+          description: Variant
+          required: true
+          schema:
+            type: string
+      tags:
+        - Reference
+      responses:
+        "200":
+          description: Element data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VariantExtended"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Classification:
+      type: object
+      properties:
+        schemaVersion:
+          type: string
+        variant:
+          $ref: "#/components/schemas/Variant"
+        classificationId:
+          type: string
+          format: uuid
+        classification:
+          type: string
+        classificationDate:
+          $ref: "#/components/schemas/ClassificationDate"
+        evaluation:
+          $ref: "#/components/schemas/Evaluation"
+        id:
+          type: string
+          format: uuid
+        submittedByUserId:
+          type: string
+          format: uuid
+        unitId:
+          type: string
+          format: uuid
+        status:
+          type: string
+    ClassificationDate:
+      type: object
+      properties:
+        quarter:
+          type: integer
+        year:
+          type: integer
+    Variant:
+      type: object
+      properties:
+        build:
+          type: string
+        chrom:
+          type: string
+        pos:
+          type: integer
+        ref:
+          type: string
+        alt:
+          type: string
+    VariantExtended:
+      type: object
+      properties:
+        build:
+          type: string
+        chrom:
+          type: string
+        pos:
+          type: integer
+        ref:
+          type: string
+        alt:
+          type: string
+        geneName:
+          type: string
+        hgvs:
+          type: string
+    Evaluation:
+      type: object
+      properties:
+        guideline:
+          type: string
+        criterias:
+          $ref: "#/components/schemas/ListOfCriterias"
+        references:
+          $ref: "#/components/schemas/ListOfReferences"
+    Criteria:
+      type: object
+      properties:
+        term:
+          type: string
+        strength:
+          type: string
+    CriteriaType:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    ListOfCriterias:
+      type: array
+      items:
+        $ref: "#/components/schemas/Criteria"
+    Reference:
+      type: object
+      properties:
+        year:
+          type: integer
+        pubmedId:
+          type: string
+        doi:
+          type: string
+    ListOfReferences:
+      type: array
+      items:
+        $ref: "#/components/schemas/Reference"
+    ListOfClassifications:
+      type: array
+      items:
+        $ref: "#/components/schemas/Classification"
+    Discordance:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        build:
+          type: string
+        chrom:
+          type: string
+        pos:
+          type: integer
+        ref:
+          type: string
+        alt:
+          type: string
+        classificationOne:
+          $ref: "#/components/schemas/DiscordanceClassification"
+        classificationTwo:
+          $ref: "#/components/schemas/DiscordanceClassification"
+        CreatedDate:
+          type: string
+          format: date-time
+    DiscordanceClassification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        unitId:
+          type: string
+          format: uuid
+    ListOfDiscordances:
+      type: array
+      items:
+        $ref: "#/components/schemas/Discordance"
+    ClassificationSimplified:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        classificationId:
+          type: string
+          format: uuid
+        variant:
+          $ref: "#/components/schemas/Variant"
+        classification:
+          type: string
+        classificationDate:
+          $ref: "#/components/schemas/ClassificationDate"
+        guideline:
+          type: string
+        unitId:
+          type: string
+          format: uuid
+        status:
+          type: string
+    ListOfSimplifiedClassifications:
+      type: array
+      items:
+        $ref: "#/components/schemas/ClassificationSimplified"
+    ClassificationResult:
+      type: object
+      properties:
+        classification:
+          $ref: "#/components/schemas/Classification"
+        errors:
+          type: string
+    ListOfClassificationResults:
+      type: array
+      items:
+        $ref: "#/components/schemas/ClassificationResult"
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        description:
+          type: string

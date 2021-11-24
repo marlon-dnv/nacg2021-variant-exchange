@@ -1,0 +1,97 @@
+openapi: 3.0.0
+info:
+  title: Variant Exchange OAuth
+  description: Variant Exchange OAuth2 service based on OpendId authentication middleware
+  version: 1.0.0
+servers:
+  - url: "https://testapi.dnvgl.com/TVX_oauth_test/"
+paths:
+  /Token:
+    post:
+      summary: Create token
+      description: |
+        Returns access token.
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/TokenRequest"
+      tags:
+        - Token
+      responses:
+        "200":
+          description: New access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /Token/:
+    post:
+      summary: Refresh token
+      description: |
+        Returns access token.
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+      tags:
+        - Token
+      responses:
+        "200":
+          description: New access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    TokenRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        grant_type:
+          type: string
+          default: password
+    RefreshTokenRequest:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+        grant_type:
+          type: string
+          default: refresh_token
+    Token:
+      type: object
+      properties:
+        token_type:
+          type: string
+          default: bearer
+        access_token:
+          type: string
+        expires_in:
+          type: integer
+        refresh_token:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        description:
+          type: string
